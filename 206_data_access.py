@@ -117,6 +117,7 @@ m3 = Movie(get_omdb_data(movie_list[2]))
 ## add the movie instances to a list named movie_instance_list
 movie_instance_list = [m1, m2, m3]
 
+ben_stiller_tweets = m1.get_director_tweets()
 
 
 
@@ -135,9 +136,9 @@ class Tweet():
 
 
 
+##  use your function to access data about a Twitter user to get information about each of the Users in the "neighborhood"
 
 
-## call two twitter functions, and cache the data
 
 
 ## create a database file
@@ -171,6 +172,8 @@ for tweet in m2.get_director_tweets():
 cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT, neighborhood TEXT)')
 
+
+
 ## Add a Movies table, the Movies table should hold:
 #       ID (primary key) 
 #       Title of the movie
@@ -191,6 +194,16 @@ for movie in movie_instance_list:
     conn.commit()
 ## Load all of the items into the database
 
+
+# use queries to find most common words in that appear in the tweets
+
+# use queries to find the actor with the most favorites on twitter in the movies
+
+# use queries to find the actor with the most retweets in the movies
+
+# use queries to find the director with the most favorites in the movies
+
+## write data to a text file -- a sort of "summary stats" page with a clear title about the movies
 
 
 
