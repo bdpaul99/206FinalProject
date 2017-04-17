@@ -80,6 +80,8 @@ class Movie():
         return self.director
     def get_actors(self):
         return self.actors
+    def get_insert_tuple(self):
+        return (self.title, self.director, self.rating, self.actors, self.num_languages, self.highest_paid_actor)
 
 
 CACHE_FNAME = "SI206_final_project.json"
@@ -152,9 +154,15 @@ cur = conn.cursor()
 cur.execute('DROP TABLE IF EXISTS Tweets')
 cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER)')
 statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
+
+
 for tweet in m1.get_director_tweets():
     t = Tweet(tweet)
     cur.execute(statement, t.get_insert_tuple())
+
+for tweet in m2.get_director_tweets():
+    t = Tweet(tweet)
+    cur.execute(statement,t.get_insert_tuple())
 ## Add a Users table, the Users table should hold:
 #       User ID (primary key)
 #       User screen name
@@ -172,10 +180,16 @@ cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_
 #       The top billed (first in the list) actor in the movie
 #       Tweets about the Movie
 cur.execute('DROP TABLE IF EXISTS MOVIES')
-cur.execute('CREATE TABLE Movies(ID TEXT PRIMARY KEY, title TEXT, director TEXT, num_languages INTEGER, rating REAL, top_billed_actor TEXT, tweets TEXT)')
-
+cur.execute('CREATE TABLE Movies(ID  INTEGER PRIMARY KEY, title TEXT,  director TEXT, rating REAL, actors TEXT, num_languages INTEGER,  top_billed_actor TEXT)')
+statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?)'
+i = 1
+for movie in movie_instance_list:
+    t = movie.get_insert_tuple()
+    print(t)
+    cur.execute(statement, (i, t[0],t[1],t[2],t[3],t[4],t[5]))
+    i+=1
+    conn.commit()
 ## Load all of the items into the database
-
 
 
 
