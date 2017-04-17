@@ -1,0 +1,149 @@
+SI 206 W17
+Put your name here:
+Brendan Paul
+----
+
+Which option for the final project are you choosing -- 1, 2, or 3?
+
+2
+
+IF YOU ARE CHOOSING OPTION 3, answer the following questions:
+
+* Write 1-3 sentences summarizing what the goal of your project is:
+
+
+* What are your two data sources? Provide links to documentation or websites you will be getting data from.
+
+
+* Why are you proposing this project?
+
+
+* What will the output of this project be? What will it look like, and what information will it contain?
+
+
+* What are your concerns about this proposal?
+
+
+-----
+
+THE FOLLOWING QUESTIONS ARE FOR EVERYONE. (Though they may be easier if you are choosing Option 1 or 2, because you can reference the Option 1 or 2 instructions.)
+
+* What will at least one of the classes you're going to define be called?
+
+MOVIE
+
+
+* What will that class take as input to its constructor?
+A dictionary that represents a movie
+
+
+* What will 1 instance of this class represent?
+
+It will represent an individual movie and additional information attached to the movie.
+
+* What are 3 instance variables this class will have? What will they be called, and what information will they hold? Why are they important?
+
+It will have the movie title (self.title), the movie director (self.director) and a IMDB rating (self.rating) to hold its rating. They are important because they are defining qualities that will allow the user to sort and organize the database of movies.
+
+
+* Explain 2 methods the class will have that are not the class constructor (__init__ method) by answering the following questions for each. 
+ONE METHOD:
+- What will the name of the method be?
+
+get_directors_tweets(self)
+
+
+- What will the method do?
+The method will get 20 recent tweets from the director of the movie.
+
+- Will it take any additional input? 
+
+It will not take any additional input
+
+- Will it return anything? Should it change anything about the instance/an instance variable? 
+
+It will return a list of twitter response dictionaries
+It will not change anything about the instance or instance variables
+
+- Why is it useful for this class definition, in this program?
+It is useful for this class definition in this program as it allows us to find additional data about the director of the movie through twitter
+
+
+ANOTHER METHOD:
+- What will the name of the method be?
+__str__()
+
+- What will the method do?
+The method will print out the movie and its charecteristics
+
+- Will it take any additional input? 
+It will not take any additional input
+
+- Will it return anything? Should it change anything about the instance/an instance variable? 
+It will not return anything and it should not change anything about the instance or an instance variable.
+
+
+- Why is it useful for this class definition, in this program?
+
+IT is useful for this class because it will be nice for a user to print out a short summary of a movie object and its charecteristics.
+
+[If you definitely want to have a third, feel free to answer those questions a third time, because you'll have to do so eventually. when you write documentation!]
+
+
+* What will the tables in your database be?
+
+Tweets
+Users
+Movies
+
+* What fields will each database table have? Which field of them is the primary key? You should list the fields for each database table here, e.g.
+Tweets:
+-text
+-tweet ID (primary key)
+-user
+-search term
+-number favorites
+-number retweets
+
+Users:
+-User ID (primary key)
+-User screen name
+-Number of favorites that user has ever made
+
+Movies:
+-ID (primary key) (NOTE title is dangerous for a primary key, 2 movies could have the same title!)
+Title of the movie
+Director of the movie 
+Number of languages the movie has
+IMDB rating of the movie
+The top billed (first in the list) actor in the movie
+
+
+
+
+
+
+* List, in English, 2 queries you'll want to make from your database. At least one should be a JOIN. You can always change these later, but start with  ideas you're interested in and lessen the work on yourself later on! 
+(e.g. from class examples, maybe "I want to make a query that accesses the numbers of times each user has favorited tweets, and the number of times tweets that user posted have been favorited -- so I'll be joining the Tweets table and the Users table")
+
+I want to make a query to get all of the names in the movie list with their respective imdb ratings.
+I want to join the director from the movies table and the directors tweets from the users table. 
+
+* What are at least 2 of the data processing mechanics you're planning to use? 
+
+I am planning to use a set comprehension and a list comprehension
+
+
+
+* Why will each of those be useful to you? What data might you use it on? 
+(e.g. "Set comprehension: I think I'm going to be looking for unique names and proper nouns in this big set of text, so I'm going to use a set comprehension"). 
+>>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
+
+Set comprehensions will be useful for getting unique twitter usernames
+List comprehensions will be useful for accumulating a list of tuples with the movie name and the rating
+
+
+
+* What will your output look like? Will it be a .txt file? a CSV file? something else? What information will it contain? >>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
+
+It will be a text file that is a sort of "summary stats" page with a a few movie titles and summaries of their twitter data with the current date.
