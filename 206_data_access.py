@@ -29,6 +29,8 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 ## Define a class Movie:
 ## The constructor should accept a dictionary that represents a movie.
 ## It should have these instance variables: Movie title, director, its IMDB rating, a list of actors, the number of languages in the movie, and the highest paid actor
+
+########################################################   Beginning of class movie ########################################################
 class Movie():
     def __init__(self,movie_dict):
         self.title = movie_dict['Title']
@@ -37,6 +39,7 @@ class Movie():
         self.actors = movie_dict['Actors']
         self.num_languages = len(movie_dict['Language'])
         self.highest_paid_actor = (self.actors.split(" ")[0] +  " " + self.actors.split(" ")[1])[:-1]
+        self.genre = movie_dict['Genre'].split(",")[0]
 
     def __str__(self):
         rstr = self.title + " Movie Data:"
@@ -45,6 +48,7 @@ class Movie():
         rstr += '\n' + "actors: " + self.actors
         rstr += '\n' + "Number of Languages: " + str(self.num_languages)
         rstr += '\n' + "Highest Paid Actor " + self.highest_paid_actor
+        rstr += '\n' + "Genre" + self.genre
         return rstr
     def get_movie_tweets(self):
         if self.title in CACHE_DICTION:
@@ -61,8 +65,6 @@ class Movie():
             resp = api.search_users(q = self.director)
             user_id = resp[0]['id']
             CACHE_DICTION[self.director] = api.user_timeline(user_id)
-            print(self.director)
-            print(user_id)
             return CACHE_DICTION[self.director]
 
     def get_highest_paid_actor_tweets(self):
@@ -72,27 +74,65 @@ class Movie():
             resp = api.search_users(q = self.highest_paid_actor)
             user_id = resp[0]['id']
             CACHE_DICTION[self.highest_paid_actor] = api.user_timeline(user_id)
-            print(self.highest_paid_actor)
-            print(user_id)
             return CACHE_DICTION[self.highest_paid_actor]
 
+    def get_director_user_data(self):
+        if self.director in CACHE_DICTION['director_data']:
+            return CACHE_DICTION[director_data][self.director]
+        else:
+            resp = api.search_users(q = self.director)
+            user_id = resp[0]['id']
+            CACHE_DICTION['director_data'][self.director] = api.get_user(user_id)
+            return CACHE_DICTION['director_data'][self.director]
+    def get_highest_paid_actor_data(self):
+        if self.highest_paid_actor in CACHE_DICTION['actors_data']:
+            return CACHE_DICTION['actors_data'][self.highest_paid_actor]
+        else:
+            resp = api.search_users(q = self.highest_paid_actor)
+            user_id = resp[0]['id']
+            CACHE_DICTION['actors_data'][self.highest_paid_actor] = api.get_user(user_id)
+            return CACHE_DICTION['actors_data'][self.highest_paid_actor]
+
+    def get_highest_paid_actor(self):
+        return self.highest_paid_actor
     def get_director(self):
         return self.director
     def get_actors(self):
         return self.actors
     def get_insert_tuple(self):
-        return (self.title, self.director, self.rating, self.actors, self.num_languages, self.highest_paid_actor)
+        return (self.title, self.director, self.rating, self.actors, self.num_languages, self.highest_paid_actor,self.genre)
 
 
-CACHE_FNAME = "SI206_final_project.json"
-# Put the rest of your caching setup here:
-try:
-    cache_file = open(CACHE_FNAME,'r')
-    cache_contents = cache_file.read()
-    cache_file.close()
-    CACHE_DICTION = json.loads(cache_contents)
-except:
-    CACHE_DICTION = {}
+
+########################################################   End of class Movie ########################################################
+
+
+############################################################ Create a class Tweet ########################################################
+class Tweet():
+    def __init__(self,tweet_dict):
+        self.content = tweet_dict['text']
+        self.tweet_id = tweet['id_str']
+        self.user_id = tweet['user']['id_str']
+        self.time_posted = tweet['created_at']
+        self.retweets = tweet['retweet_count']
+
+    def get_insert_tuple(self):
+        return (self.tweet_id, self.content, self.user_id, self.time_posted, self.retweets)
+
+        
+ ########################################################   End of class Tweet ########################################################
+
+ ########################################################   Beginning of Helper Functions ########################################################
+ 
+def get_user_neighborhood(tweet_dict):
+        user_names = []
+        user_mentions = [tweet['entities']['user_mentions'] for tweet in tweet_dict]
+        for each in user_mentions:
+            for mention in each:
+             if mention['screen_name'] not in user_names:
+                user_names.append(mention['screen_name'])
+        return user_names
+
 
 ## write a function to get movie data from the omdb api
 def get_omdb_data(movie_title):
@@ -105,41 +145,42 @@ def get_omdb_data(movie_title):
 
     CACHE_DICTION[movie_title] = response
     return response
+
+########################################################   End of Helper Functions ########################################################
+########################################################  Beginning of Cache Pattern ########################################################
+CACHE_FNAME = "SI206_final_project.json"
+# Put the rest of your caching setup here:
+try:
+    cache_file = open(CACHE_FNAME,'r')
+    cache_contents = cache_file.read()
+    cache_file.close()
+    CACHE_DICTION = json.loads(cache_contents)
+except:
+    CACHE_DICTION = {}
+
+########################################################   End of Cache Pattern ########################################################
+    
+
 ## Create a list of three omdb search terms, and turn them into movie instances 
-movie_list = ["Tropic Thunder", "Super Troopers", "Step Brothers"]
+movie_list = ["Tropic Thunder", "Super Troopers", "Step Brothers", "Fight Club", "Avatar"]
 
 ## create three movie instances
-m1 = Movie(get_omdb_data(movie_list[0]))
-m2 = Movie(get_omdb_data(movie_list[1]))
-m3 = Movie(get_omdb_data(movie_list[2]))
+
 
 
 ## add the movie instances to a list named movie_instance_list
-movie_instance_list = [m1, m2, m3]
-
-ben_stiller_tweets = m1.get_director_tweets()
+movie_instance_list = [ Movie(get_omdb_data(m)) for m in movie_list ]
 
 
 
 
-# ## Create a class Tweet
-class Tweet():
-    def __init__(self,tweet_dict):
-        self.content = tweet_dict['text']
-        self.tweet_id = tweet['id_str']
-        self.user_id = tweet['user']['id_str']
-        self.time_posted = tweet['created_at']
-        self.retweets = tweet['retweet_count']
 
-    def get_insert_tuple(self):
-        return (self.tweet_id, self.content, self.user_id, self.time_posted, self.retweets)
+
 
 
 
 ##  use your function to access data about a Twitter user to get information about each of the Users in the "neighborhood"
-
-
-
+directors = [m.get_director() for m in movie_instance_list]
 
 ## create a database file
 conn = sqlite3.connect('final_project.db')
@@ -156,24 +197,48 @@ cur.execute('DROP TABLE IF EXISTS Tweets')
 cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER)')
 statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
 
+for m in movie_instance_list:
+    for tweet in m.get_highest_paid_actor_tweets():
+        t = Tweet(tweet)
+        cur.execute(statement, t.get_insert_tuple())
+    for tweet in m.get_director_tweets():
+        t = Tweet(tweet)
+        cur.execute(statement, t.get_insert_tuple())
 
-for tweet in m1.get_director_tweets():
-    t = Tweet(tweet)
-    cur.execute(statement, t.get_insert_tuple())
 
-for tweet in m2.get_director_tweets():
-    t = Tweet(tweet)
-    cur.execute(statement,t.get_insert_tuple())
 ## Add a Users table, the Users table should hold:
 #       User ID (primary key)
 #       User screen name
 #       Number of favorites that user has ever made
-#       The users in the neighborhood of that u
+
 cur.execute('DROP TABLE IF EXISTS Users')
-cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT, neighborhood TEXT)')
+cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT, role TEXT)')
+statement = statement = 'INSERT INTO Users Values (?, ?, ?, ?, ?)'
+try:
+    director_data = CACHE_DICTION['director_data']
+    for director in director_data:
+        cur.execute(statement, (director[user_id], director[screen_name], director[num_favs], director[description], "Director"))
+except:
+    CACHE_DICTION['director_data'] = {}
+    for m in movie_instance_list:
+        data = m.get_director_user_data()
+        CACHE_DICTION['director_data'][m.get_director()] = data
+        cur.execute(statement, (data['id'],data['screen_name'],data['favourites_count'],data['description'], "Director"))
 
+## Add Actors to the Users table
+try:
+    actors_data = CACHE_DICTION['actors_data']
+    for actor in actors_data:
+        cur.execute(statement, (actor[user_id], actor[screen_name], actor[num_favs], actor[description], "Actor"))
+except:
+    CACHE_DICTION['actors_data'] = {}
+    for m in movie_instance_list:
+        data = m.get_highest_paid_actor_data()
+        CACHE_DICTION['actors_data'][m.get_highest_paid_actor()] = data
+        cur.execute(statement, (data['id'],data['screen_name'],data['favourites_count'],data['description'], "Actor"))
+# 
 
-
+conn.commit()
 ## Add a Movies table, the Movies table should hold:
 #       ID (primary key) 
 #       Title of the movie
@@ -183,13 +248,13 @@ cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_
 #       The top billed (first in the list) actor in the movie
 #       Tweets about the Movie
 cur.execute('DROP TABLE IF EXISTS MOVIES')
-cur.execute('CREATE TABLE Movies(ID  INTEGER PRIMARY KEY, title TEXT,  director TEXT, rating REAL, actors TEXT, num_languages INTEGER,  top_billed_actor TEXT)')
-statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?)'
+cur.execute('CREATE TABLE Movies(ID  INTEGER PRIMARY KEY, title TEXT,  director TEXT, rating REAL, actors TEXT, num_languages INTEGER,  top_billed_actor TEXT, genre TEXT)')
+statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?,?)'
 i = 1
 for movie in movie_instance_list:
     t = movie.get_insert_tuple()
     print(t)
-    cur.execute(statement, (i, t[0],t[1],t[2],t[3],t[4],t[5]))
+    cur.execute(statement, (i, t[0],t[1],t[2],t[3],t[4],t[5], t[6]))
     i+=1
     conn.commit()
 ## Load all of the items into the database
