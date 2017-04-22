@@ -51,10 +51,11 @@ class Movie():
         rstr += '\n' + "Genre" + self.genre
         return rstr
     def get_movie_tweets(self):
-        if self.title in CACHE_DICTION:
-            return CACHE_DICTION[self.title]
+        if (self.title + "_tweets") in CACHE_DICTION:
+            return CACHE_DICTION[(self.title + "_tweets")]
         else:
-            return api.search(q = self.title)
+            CACHE_DICTION[(self.title + "_tweets")] = api.search(q = self.title)
+            return CACHE_DICTION[(self.title + "_tweets")]
 
     # Define your function get_director_tweets here:
     def get_director_tweets(self):
@@ -78,7 +79,7 @@ class Movie():
 
     def get_director_user_data(self):
         if self.director in CACHE_DICTION['director_data']:
-            return CACHE_DICTION[director_data][self.director]
+            return CACHE_DICTION['director_data'][self.director]
         else:
             resp = api.search_users(q = self.director)
             user_id = resp[0]['id']
@@ -301,44 +302,161 @@ print(c)
 ## write data to a text file -- a sort of "summary stats" page with a clear title about the movies
 
 
-
-
 w = open(CACHE_FNAME, 'w')
 w.write(json.dumps(CACHE_DICTION))
 w.close()
+
 
 # Write your test cases here.
 
 
 ## Remember to invoke all your tests...
 class PartOne(unittest.TestCase):
-    def test1(self):
+    def test_ctor_1(self):
         movie1 = Movie(get_omdb_data("Super Troopers"))
-        tweets = movie1.get_director_tweets()
-        assert(len(tweets) >= 10)
+        assert(movie1.title == "Super Troopers")
     
-    def test2(self):
+    def test_ctor_2(self):
+        movie1 = Movie(get_omdb_data("Fury"))
+        assert(movie1.get_director() == "David Ayer")
+
+    def test_str_1(self):
+        movie1 = Movie(get_omdb_data("Super Troopers"))
+        assert(type(movie1.__str__()) == type(""))
+    
+    def test_str_2(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert("Fury" in movie.__str__())
+    
+    def test_get_movie_tweets_1(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert(type(movie.get_movie_tweets()["statuses"]) == list)
+    
+    def test_get_movie_tweets_2(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert(type({}) == type(movie.get_movie_tweets()))
+    
+    def test_get_director_tweets_1(self):
         movie1 = Movie(get_omdb_data("Super Troopers"))
         tweets = movie1.get_director_tweets()
         assert(type(tweets) == type([]))
-
-    def test3(self):
+    
+    def test_get_director_tweets_2(self):
         movie1 = Movie(get_omdb_data("Super Troopers"))
         tweets = movie1.get_director_tweets()
-
         assert(type(tweets[0])) == type({})
-    def test4(self):
-        movie1 = Movie(get_omdb_data("Super Troopers"))
-        assert(type(movie1.__str__()) == type(""))
-    def test5(self):
+    
+    def test_get_highest_paid_actor_tweets_1(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert(type([]) == type(movie.get_highest_paid_actor_tweets()))
+    
+    def test_get_highest_paid_actor_tweets_2(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert("id" in movie.get_highest_paid_actor_tweets()[0])
+    
+    def test_get_director_user_data_1(self):
+        movie = Movie(get_omdb_data("Tropic Thunder"))
+        data = movie.get_director_user_data()
+        assert('favourites_count' in data.keys())
+
+    
+    def test_get_director_user_data_2(self):
+        movie = Movie(get_omdb_data("Avatar"))
+        data = movie.get_director_user_data()
+        assert(data['screen_name'] == "JimCameron")
+    
+    def test_get_highest_paid_actor_data_1(self):
+        movie = Movie(get_omdb_data("Fury"))
+        data = movie.get_highest_paid_actor_data()
+        assert(data['id'] == 2240466994)
+    
+    def test_get_highest_paid_actor_data_2(self):
+        movie = Movie(get_omdb_data("Fury"))
+        data = movie.get_highest_paid_actor_data()
+        assert(data['favourites_count'] == 136)
+    
+    def test_get_highest_paid_actor_1(self):
+        movie = Movie(get_omdb_data("Fury"))
+        assert("Brad Pitt" == movie.get_highest_paid_actor())
+    
+    def test_get_highest_paid_actor_2(self):
+        movie = Movie(get_omdb_data("The Usual Suspects"))
+        assert(type(movie.get_highest_paid_actor()) == type(""))
+    
+    def test_get_director_1(self):
         movie1 = Movie(get_omdb_data("Super Troopers"))
         assert(type(movie1.get_director()) == type(""))
-    def test6(self):
-        movie1 = Movie(get_omdb_data("Super Troopers"))
-        assert(type(movie1.get_actors()) == type(""))
-    def test7(self):
+    
+    def test_get_director_2(self):
         movie1 = Movie(get_omdb_data("Django Unchained"))
         assert(movie1.get_director() == "Quentin Tarantino")
+    
+    def test_get_actors_1(self):
+        movie1 = Movie(get_omdb_data("Super Troopers"))
+        assert(type(movie1.get_actors()) == type(""))
+    
+    def test_get_actors_2(self):
+        movie1 = Movie(get_omdb_data("Fight Club"))
+        assert("Edward Norton" in movie1.get_actors())
+    
+    def test_get_insert_tuple_1(self):
+        movie1 = Movie(get_omdb_data("Fight Club"))
+        assert(type(movie1.get_insert_tuple()) == tuple)
+    
+    def test_get_insert_tuple_2(self):
+        movie1 = Movie(get_omdb_data("Fight Club"))
+        assert(len(movie1.get_insert_tuple()) == 7)
+    
+    def test_tweet_class_ctor_1(self):
+        movie1 = Movie(get_omdb_data("Step Brothers"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        t = Tweet(tweets[0])
+        assert(type(t.content) == type(""))
+    
+    def test_tweet_class_ctor_2(self):
+        movie1 = Movie(get_omdb_data("Step Brothers"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        t = Tweet(tweets[0])
+        assert(type(t.retweets) == type(3))
+    
+    def test_tweet_class_get_insert_1(self):
+        movie1 = Movie(get_omdb_data("Step Brothers"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        t = Tweet(tweets[0])
+        assert(len(t.get_insert_tuple()) == 5)
+
+    def test_tweet_class_get_insert_2(self):
+        movie1 = Movie(get_omdb_data("Step Brothers"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        t = Tweet(tweets[0])
+        assert(type(t.get_insert_tuple()) == tuple)
+
+    def test_get_user_neighborhood_1(self):
+        movie1 = Movie(get_omdb_data("Avatar"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        assert(type(get_user_neighborhood(tweets) == list))
+    def test_get_user_neighborhood_2(self):
+        movie1 = Movie(get_omdb_data("Avatar"))
+        tweets = movie1.get_highest_paid_actor_tweets()
+        assert(len(get_user_neighborhood(tweets)) >= 5)
+
+    def test_get_omdb_data_1(self):
+        movie1 = get_omdb_data("Avatar")
+        assert("James Cameron" == movie1['Director'])
+
+    def test_get_omdb_data_2(self):
+        movie1 = get_omdb_data("Avatar")
+        assert(type(movie1) == dict)
+
+    def test_get_user_data_1(self):
+        data = get_user_data("RedHourBen")
+        assert(type(data) == dict)
+
+    def test_get_user_data_2(self):
+        data = get_user_data("RedHourBen")
+        assert('favourites_count' in data.keys())
+
+
     def test8(self):
         conn = sqlite3.connect('final_project.db')
         cur = conn.cursor()
