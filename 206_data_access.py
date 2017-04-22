@@ -82,6 +82,7 @@ class Movie():
         else:
             resp = api.search_users(q = self.director)
             user_id = resp[0]['id']
+
             CACHE_DICTION['director_data'][self.director] = api.get_user(user_id)
             return CACHE_DICTION['director_data'][self.director]
     def get_highest_paid_actor_data(self):
@@ -145,6 +146,13 @@ def get_omdb_data(movie_title):
 
     CACHE_DICTION[movie_title] = response
     return response
+def get_user_data(screen_name):
+        if screen_name in CACHE_DICTION:
+            return CACHE_DICTION[screen_name]
+        else:
+            
+            CACHE_DICTION[screen_name] = api.get_user(screen_name)
+            return CACHE_DICTION[screen_name]
 
 ########################################################   End of Helper Functions ########################################################
 ########################################################  Beginning of Cache Pattern ########################################################
@@ -162,7 +170,7 @@ except:
     
 
 ## Create a list of three omdb search terms, and turn them into movie instances 
-movie_list = ["Tropic Thunder", "Super Troopers", "Step Brothers", "Fight Club", "Avatar"]
+movie_list = ["Super Troopers", "Fury", "Step Brothers", "Fight Club", "Avatar", "The Usual Suspects"]
 
 ## create three movie instances
 
@@ -170,12 +178,6 @@ movie_list = ["Tropic Thunder", "Super Troopers", "Step Brothers", "Fight Club",
 
 ## add the movie instances to a list named movie_instance_list
 movie_instance_list = [ Movie(get_omdb_data(m)) for m in movie_list ]
-
-
-
-
-
-
 
 
 
@@ -212,8 +214,8 @@ for m in movie_instance_list:
 #       Number of favorites that user has ever made
 
 cur.execute('DROP TABLE IF EXISTS Users')
-cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT, role TEXT)')
-statement = statement = 'INSERT INTO Users Values (?, ?, ?, ?, ?)'
+cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, real_name TEXT, screen_name TEXT, num_favs INTEGER, description TEXT, role TEXT)')
+statement = statement = 'INSERT INTO Users Values (?, ?, ?, ?, ?, ?)'
 try:
     director_data = CACHE_DICTION['director_data']
     for director in director_data:
@@ -223,7 +225,8 @@ except:
     for m in movie_instance_list:
         data = m.get_director_user_data()
         CACHE_DICTION['director_data'][m.get_director()] = data
-        cur.execute(statement, (data['id'],data['screen_name'],data['favourites_count'],data['description'], "Director"))
+        cur.execute(statement, (data['id'], m.get_director(), data['screen_name'],data['favourites_count'],data['description'], "Director"))
+
 
 ## Add Actors to the Users table
 try:
@@ -235,8 +238,28 @@ except:
     for m in movie_instance_list:
         data = m.get_highest_paid_actor_data()
         CACHE_DICTION['actors_data'][m.get_highest_paid_actor()] = data
-        cur.execute(statement, (data['id'],data['screen_name'],data['favourites_count'],data['description'], "Actor"))
-# 
+        cur.execute(statement, (data['id'], m.get_highest_paid_actor() ,data['screen_name'],data['favourites_count'],data['description'], "Actor"))
+## Add all the users in the Actors and Directors neighborhoods to the userts table
+cur.execute('SELECT screen_name FROM Users')
+screen_names = [name[0] for name in cur.fetchall()]
+
+
+
+for movie in movie_instance_list:
+    direct_tweets = movie.get_director_tweets()
+    actor_tweets = movie.get_highest_paid_actor_tweets()
+    direct_neighbors = get_user_neighborhood(direct_tweets)
+    actor_neighbors = get_user_neighborhood(actor_tweets)
+    all_neighbors = direct_neighbors + actor_neighbors
+    for neighbor in all_neighbors:
+        if neighbor not in screen_names:
+            try:
+                data = get_user_data(neighbor)
+                screen_names.append(neighbor)
+                cur.execute(statement, (data['id'], data['name'] ,data['screen_name'],data['favourites_count'],data['description'], "Neighbor"))
+            except:
+                print("user has been suspended")
+    
 
 conn.commit()
 ## Add a Movies table, the Movies table should hold:
@@ -259,15 +282,22 @@ for movie in movie_instance_list:
     conn.commit()
 ## Load all of the items into the database
 
+cur.execute('SELECT Users.real_name, Tweets.text, Tweets.retweets FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_id WHERE Users.role= "Actor"')
+actor_tweet_tuples = cur.fetchall()
 
-# use queries to find most common words in that appear in the tweets
+sorted_actor_tweet_tuples = sorted(actor_tweet_tuples, key = lambda x: x[2], reverse = True)
 
-# use queries to find the actor with the most favorites on twitter in the movies
+lame_actor_tweets = list(filter(lambda x: x[2] < 10 ,actor_tweet_tuples))
+print(len(lame_actor_tweets))
 
-# use queries to find the actor with the most retweets in the movies
+################################
 
-# use queries to find the director with the most favorites in the movies
-
+cur.execute('SELECT Movies.title, Tweets.retweets FROM Users INNER JOIN Tweets INNER JOIN Movies ON Users.user_id = Tweets.user_id AND Movies.director = Users.real_name')
+movies_retweets_tuple = cur.fetchall()
+c = collections.Counter()
+for t in movies_retweets_tuple:
+    c.update({t[0]: t[1]})
+print(c)
 ## write data to a text file -- a sort of "summary stats" page with a clear title about the movies
 
 
