@@ -1,0 +1,62 @@
+Here are the six movies I collected data on: Super Troopers, Fury, Step Brothers, Fight Club, Avatar,  and The Usual Suspects
+
+Super Troopers Movie Data:
+director: Jay Chandrasekhar
+imdb rating: 7.1
+actors: André Vippolis, Joey Kern, Geoffrey Arend, Erik Stolhanske
+Number of Languages: 23
+Highest Paid Actor: André Vippolis
+Genre: Comedy
+
+Fury Movie Data:
+director: David Ayer
+imdb rating: 7.6
+actors: Brad Pitt, Shia LaBeouf, Logan Lerman, Michael Peña
+Number of Languages: 15
+Highest Paid Actor: Brad Pitt
+Genre: Action
+
+Step Brothers Movie Data:
+director: Adam McKay
+imdb rating: 6.9
+actors: Will Ferrell, John C. Reilly, Mary Steenburgen, Richard Jenkins
+Number of Languages: 16
+Highest Paid Actor: Will Ferrell
+Genre: Comedy
+
+Fight Club Movie Data:
+director: David Fincher
+imdb rating: 8.8
+actors: Edward Norton, Brad Pitt, Meat Loaf, Zach Grenier
+Number of Languages: 7
+Highest Paid Actor: Edward Norton
+Genre: Drama
+
+Avatar Movie Data:
+director: James Cameron
+imdb rating: 7.8
+actors: Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang
+Number of Languages: 16
+Highest Paid Actor: Sam Worthington
+Genre: Action
+
+The Usual Suspects Movie Data:
+director: Bryan Singer
+imdb rating: 8.6
+actors: Stephen Baldwin, Gabriel Byrne, Benicio Del Toro, Kevin Pollak
+Number of Languages: 35
+Highest Paid Actor: Stephen Baldwin
+Genre: Crime
+
+
+Heres the most retweeted Actor tweet that I found:
+André Vippolis: RT @SenSanders: If Donald Trump takes people's anger and turns it against Muslims, Hispanics, African Americans and women, we will be his w…
+This tweet got 135196 retweets
+
+Each of these movies has active directors on Twitter... Heres the count of retweets each Movie's director had for the tweets I collected:
+Avatar: 5579
+The Usual Suspects: 487
+Step Brothers: 29205
+Fight Club: 96679
+Super Troopers: 437
+Fury: 43784
