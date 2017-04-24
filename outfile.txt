@@ -1,3 +1,5 @@
+SI 206 FINAL PROJECT: TWEEPY x OMDB
+
 Here are the six movies I collected data on: Super Troopers, Fury, Step Brothers, Fight Club, Avatar,  and The Usual Suspects
 
 Super Troopers Movie Data:
@@ -52,11 +54,122 @@ Genre: Crime
 Heres the most retweeted Actor tweet that I found:
 André Vippolis: RT @SenSanders: If Donald Trump takes people's anger and turns it against Muslims, Hispanics, African Americans and women, we will be his w…
 This tweet got 135196 retweets
+Not all actor tweets were this poular though...there were 46 Actor tweets with less than ten retweets!
 
 Each of these movies has active directors on Twitter... Heres the count of retweets each Movie's director had for the tweets I collected:
+Fury: 43784
 Avatar: 5579
 The Usual Suspects: 487
 Step Brothers: 29205
-Fight Club: 96679
 Super Troopers: 437
-Fury: 43784
+Fight Club: 96679
+
+Total Count for each Hashtag that appeared in the Tweets
+#SpreadItOn: 1
+#CrowderMusic: 1
+#PrayForBrussels: 1
+#D: 1
+#freddiemercury: 2
+#EarthDayChallege: 1
+#vinyl: 1
+#StayClassy: 1
+#holloween: 2
+#paranormalactivity: 2
+#YEARSProject: 2
+#VRWERX: 1
+#EvaLongoria: 1
+#ActOnClimate: 1
+#skateordie: 1
+#PrayForPeace: 1
+#climatechange: 1
+#Dashiell: 1
+#theusualsuspects: 1
+#souttpark: 1
+#RIPSelena: 1
+#spock: 1
+#usa: 1
+#livelongandprosper: 1
+#PrayForTurkey: 1
+#brianmay: 2
+#HarleyQuinn: 1
+#YearsProject: 1
+#IntlForestDay: 1
+#RizHam: 1
+#diving: 1
+#TheRoadmap: 2
+#harrypotter: 1
+#freedomtower: 1
+#SuperRugby: 2
+#rogertaylor: 1
+#Lo: 1
+#queen: 1
+#history: 1
+#Queen: 1
+#a380: 1
+#RCGD: 1
+#A: 1
+#goldmedalist: 1
+#BlackHistoryMonth: 1
+#britishairways: 1
+#EarthDayChallenge: 3
+#VR: 1
+#Awoooo: 1
+#INowPronounceYouDanAndW: 1
+#grahamking: 1
+#Tactical: 1
+#ChristianBale: 1
+#BrightMovie: 1
+#newhampshire: 1
+#beerfest: 1
+#IceBucketChallenge: 1
+#costume: 2
+#PrayForTheWorld: 1
+#olympics: 1
+#la: 1
+#virtualreality: 1
+#joequesada: 1
+#lifegoals: 1
+#MustachesAndShenangans: 1
+#startrek50th: 1
+#WDB: 1
+#bettingonzero: 1
+#johndeacon: 1
+#pantages: 1
+#JusticeLeague: 1
+#london: 1
+#BRIGHT: 1
+#edinburghfringe: 1
+#FreddyRodriguez: 1
+#gold: 1
+#edinburghcastle: 1
+#Bright: 1
+#acoustictour: 1
+#startrek: 1
+#nikeplus: 5
+#sunwolves: 1
+#Consultant: 1
+#WeDemandBetter: 1
+#nj: 1
+#legit: 1
+#music: 1
+#SCO: 1
+#20thcenturyfox: 2
+#throwbackthursday: 1
+#SuicideSquad: 1
+#cafemed: 1
+#Scotland: 1
+#Oscars: 1
+#catstevens: 1
+#NewYorkCity: 1
+#poder: 1
+#nyc: 1
+#fox: 3
+#insidious4: 1
+#faith: 1
+#BlessResurrectionSunday: 3
+#BuildTheWall: 1
+#money: 1
+#JohnClarke: 1
+#Training: 1
+#edinburgh: 1
+#bohemianrhapsody: 1

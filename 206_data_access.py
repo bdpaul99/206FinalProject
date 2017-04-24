@@ -132,7 +132,7 @@ class Tweet():
  ########################################################   End of class Tweet ########################################################
 
  ########################################################   Beginning of Helper Functions ########################################################
- 
+ ## write a function to get the neighborhood of a user
 def get_user_neighborhood(tweet_dict):
         user_names = []
         user_mentions = [tweet['entities']['user_mentions'] for tweet in tweet_dict]
@@ -154,6 +154,8 @@ def get_omdb_data(movie_title):
 
     CACHE_DICTION[movie_title] = response
     return response
+
+## write a function to get data about a user based on a screen_name
 def get_user_data(screen_name):
         if screen_name in CACHE_DICTION:
             return CACHE_DICTION[screen_name]
@@ -222,34 +224,19 @@ for m in movie_instance_list:
 cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, real_name TEXT, screen_name TEXT, num_favs INTEGER, description TEXT, role TEXT)')
 statement = statement = 'INSERT INTO Users Values (?, ?, ?, ?, ?, ?)'
-# try:
-#     director_data = CACHE_DICTION['director_data']
-#     for director in director_data:
-#         cur.execute(statement, (director[user_id], director[screen_name], director[num_favs], director[description], "Director"))
-# except:
-#     CACHE_DICTION['director_data'] = {}
+
 for m in movie_instance_list:
     data = m.get_director_user_data()
-        # CACHE_DICTION['director_data'][m.get_director()] = data
     cur.execute(statement, (data['id'], m.get_director(), data['screen_name'],data['favourites_count'],data['description'], "Director"))
 
 
-## Add Actors to the Users table
-# try:
-#     actors_data = CACHE_DICTION['actors_data']
-#     for actor in actors_data:
-#         cur.execute(statement, (actor[user_id], actor[screen_name], actor[num_favs], actor[description], "Actor"))
-# except:
-#     CACHE_DICTION['actors_data'] = {}
 for m in movie_instance_list:
     data = m.get_highest_paid_actor_data()
-        # CACHE_DICTION['actors_data'][m.get_highest_paid_actor()] = data
     cur.execute(statement, (data['id'], m.get_highest_paid_actor() ,data['screen_name'],data['favourites_count'],data['description'], "Actor"))
+
 ## Add all the users in the Actors and Directors neighborhoods to the userts table
 cur.execute('SELECT screen_name FROM Users')
 screen_names = [name[0] for name in cur.fetchall()]
-
-
 
 for movie in movie_instance_list:
     direct_tweets = movie.get_director_tweets()
@@ -264,7 +251,7 @@ for movie in movie_instance_list:
                 screen_names.append(neighbor)
                 cur.execute(statement, (data['id'], data['name'] ,data['screen_name'],data['favourites_count'],data['description'], "Neighbor"))
             except:
-                print("user has been suspended")
+                print("User", neighbor, "could not be added, has been suspended on twitter")
     
 
 conn.commit()
@@ -282,12 +269,14 @@ statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?,?)'
 i = 1
 for movie in movie_instance_list:
     t = movie.get_insert_tuple()
-    print(t)
+    
     cur.execute(statement, (i, t[0],t[1],t[2],t[3],t[4],t[5], t[6]))
     i+=1
     conn.commit()
-## Load all of the items into the database
 
+
+################################################################################
+## Sort the actors tweets by how many retweets they recieved
 cur.execute('SELECT Users.real_name, Tweets.text, Tweets.retweets FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_id WHERE Users.role= "Actor"')
 actor_tweet_tuples = cur.fetchall()
 
@@ -297,16 +286,16 @@ lame_actor_tweets = list(filter(lambda x: x[2] < 10 ,actor_tweet_tuples))
 
 
 
-################################
-
+###########################################################################
+## Find out which movies director got the most retweets overall
 cur.execute('SELECT Movies.title, Tweets.retweets FROM Users INNER JOIN Tweets INNER JOIN Movies ON Users.user_id = Tweets.user_id AND Movies.director = Users.real_name')
 movies_retweets_tuple = cur.fetchall()
 c = collections.Counter()
 for t in movies_retweets_tuple:
     c.update({t[0]: t[1]})
 
-
-
+#####################################################################
+## Create a Dictionary with Hastags as the keys (using collections container and regular expressions) and the number of times they occur as the value
 cur.execute('SELECT Tweets.text FROM Tweets')
 tweets_list = list(cur.fetchall())
 tweets_list = [tweet[0] for tweet in tweets_list]
@@ -317,16 +306,14 @@ for tweet in tweets_list:
     for tag in hashtags_list:
         c2[tag] += 1
 
-
+#######################################################################
 ## write data to a text file -- a sort of "summary stats" page with a clear title about the movies
-
-
-
 w = open(CACHE_FNAME, 'w')
 w.write(json.dumps(CACHE_DICTION))
 w.close()
 
 out = open('outfile.txt', 'w', encoding = "utf-8")
+out.write("SI 206 FINAL PROJECT: TWEEPY x OMDB\n\n")
 out.write("Here are the six movies I collected data on: "+ "Super Troopers, "+ "Fury, "+ "Step Brothers, "+ "Fight Club, "+ "Avatar, "+ " and The Usual Suspects\n\n")
 for movie in movie_instance_list:
     
@@ -334,12 +321,15 @@ for movie in movie_instance_list:
 out.write("\nHeres the most retweeted Actor tweet that I found:\n")
 out.write(sorted_actor_tweet_tuples[0][0] +  ": " + sorted_actor_tweet_tuples[0][1])
 out.write("\nThis tweet got " + str(sorted_actor_tweet_tuples[0][2]) + " retweets")
+out.write("\nNot all actor tweets were this poular though...there were " + str(len(lame_actor_tweets)) + " Actor tweets with less than ten retweets!")
 
 out.write("\n\nEach of these movies has active directors on Twitter... Heres the count of retweets each Movie's director had for the tweets I collected:")
-
 for t in c.items():
-   
-    out.write("\n" + t[0] + ": " + str(t[1]) )
+    out.write("\n" + t[0] + ": " + str(t[1]))
+
+out.write("\n\nTotal Count for each Hashtag that appeared in the Tweets")
+for each in c2.items():
+    out.write("\n#" + each[0] + ": " + str(each[1]))
 # Write your test cases here.
 
 
@@ -391,7 +381,6 @@ class PartOne(unittest.TestCase):
         movie = Movie(get_omdb_data("Tropic Thunder"))
         data = movie.get_director_user_data()
         assert('favourites_count' in data.keys())
-
     
     def test_get_director_user_data_2(self):
         movie = Movie(get_omdb_data("Avatar"))
@@ -419,7 +408,7 @@ class PartOne(unittest.TestCase):
     def test_get_director_1(self):
         movie1 = Movie(get_omdb_data("Super Troopers"))
         assert(type(movie1.get_director()) == type(""))
-    
+   
     def test_get_director_2(self):
         movie1 = Movie(get_omdb_data("Django Unchained"))
         assert(movie1.get_director() == "Quentin Tarantino")
@@ -457,40 +446,38 @@ class PartOne(unittest.TestCase):
         tweets = movie1.get_highest_paid_actor_tweets()
         t = Tweet(tweets[0])
         assert(len(t.get_insert_tuple()) == 6)
-
+    
     def test_tweet_class_get_insert_2(self):
         movie1 = Movie(get_omdb_data("Step Brothers"))
         tweets = movie1.get_highest_paid_actor_tweets()
         t = Tweet(tweets[0])
         assert(type(t.get_insert_tuple()) == tuple)
-
+    
     def test_get_user_neighborhood_1(self):
         movie1 = Movie(get_omdb_data("Avatar"))
         tweets = movie1.get_highest_paid_actor_tweets()
         assert(type(get_user_neighborhood(tweets) == list))
+    
     def test_get_user_neighborhood_2(self):
         movie1 = Movie(get_omdb_data("Avatar"))
         tweets = movie1.get_highest_paid_actor_tweets()
         assert(len(get_user_neighborhood(tweets)) >= 5)
-
+    
     def test_get_omdb_data_1(self):
         movie1 = get_omdb_data("Avatar")
         assert("James Cameron" == movie1['Director'])
-
+    
     def test_get_omdb_data_2(self):
         movie1 = get_omdb_data("Avatar")
         assert(type(movie1) == dict)
-
+    
     def test_get_user_data_1(self):
         data = get_user_data("RedHourBen")
         assert(type(data) == dict)
-
+    
     def test_get_user_data_2(self):
         data = get_user_data("RedHourBen")
         assert('favourites_count' in data.keys())
-
-
- 
 
 
 if __name__ == "__main__":
